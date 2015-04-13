@@ -1,0 +1,170 @@
+2. (10 pts.) Investigate Android Process Address Space
+
+Zygote Process:
+
+	Our Zygote has pid 179
+	root      179   1     860204 48084 ffffffff 401066d8 S zygote
+	Using ./vm_inspector -v pid, we dump Zygote page table:
+	root@flo:/ # data/misc/vm_inspector 179
+	Then we save the output to /hmwk5-prog/zy_dump.txt
+
+Application process: 
+	Our application process is Geekbench 3, and it has pid 2114
+	u0_a79    2114  179   943840 50480 ffffffff 4010773c S com.primatelabs.geekbench
+	Using ./vm_inspector -v pid, we dump Zygote page table:
+	Then we save the output to /hmwk5-prog/app_dump.txt
+
+Common parts of page table dumps between Zygote and Application process:
+	vimdiff app_dump.txt zy_dump.txt
+	Then we save the output to /hmwk5-prog/comm.txt
+
+Based on cross-referencing and the output we retrieved, with reference:
+
+	Referencing to /proc/pid/maps for Application process:
+	cat /proc/2114/maps
+
+	Referencing to /proc/pid/maps for Application process:
+	cat /proc/179/maps
+
+	Many system libraries, binary, firm objects, are the shared between Application process and Zygote. 
+	Shared object names and address are listed below:
+
+	/dev/__properties__
+	/dev/ashmem/dalvik-LinearAlloc (deleted)
+	/dev/ashmem/dalvik-aux-structure (deleted)
+	/dev/ashmem/dalvik-bitmap-1 (deleted)
+	/dev/ashmem/dalvik-bitmap-2 (deleted)
+	/dev/ashmem/dalvik-card-table (deleted)
+	/dev/ashmem/dalvik-heap (deleted)
+	/dev/ashmem/dalvik-mark-stack (deleted)
+	/dev/ashmem/dalvik-zygote (deleted)
+	/system/bin/app_process
+	/system/bin/linker
+	/system/fonts/Roboto-Regular.ttf
+	/system/framework/android.policy.jar
+	/system/framework/android.policy.odex
+	/system/framework/apache-xml.jar
+	/system/framework/apache-xml.odex
+	/system/framework/bouncycastle.jar
+	/system/framework/bouncycastle.odex
+	/system/framework/conscrypt.jar
+	/system/framework/conscrypt.odex
+	/system/framework/core-junit.jar
+	/system/framework/core-junit.odex
+	/system/framework/core.jar
+	/system/framework/core.odex
+	/system/framework/ext.jar
+	/system/framework/ext.odex
+	/system/framework/framework-res.apk
+	/system/framework/framework.jar
+	/system/framework/framework.odex
+	/system/framework/framework2.jar
+	/system/framework/framework2.odex
+	/system/framework/mms-common.jar
+	/system/framework/mms-common.odex
+	/system/framework/okhttp.jar
+	/system/framework/okhttp.odex
+	/system/framework/services.jar
+	/system/framework/services.odex
+	/system/framework/telephony-common.jar
+	/system/framework/telephony-common.odex
+	/system/framework/voip-common.jar
+	/system/framework/voip-common.odex
+	/system/framework/webviewchromium.jar
+	/system/framework/webviewchromium.odex
+	/system/lib/egl/libEGL_adreno.so
+	/system/lib/egl/libGLESv1_CM_adreno.so
+	/system/lib/egl/libGLESv2_adreno.so
+	/system/lib/hw/memtrack.msm8960.so
+	/system/lib/libEGL.so
+	/system/lib/libETC1.so
+	/system/lib/libGLES_trace.so
+	/system/lib/libGLESv1_CM.so
+	/system/lib/libGLESv2.so
+	/system/lib/libLLVM.so
+	/system/lib/libRS.so
+	/system/lib/libRScpp.so
+	/system/lib/libadreno_utils.so
+	/system/lib/libandroid.so
+	/system/lib/libandroid_runtime.so
+	/system/lib/libandroidfw.so
+	/system/lib/libaudioflinger.so
+	/system/lib/libaudioutils.so
+	/system/lib/libbcc.so
+	/system/lib/libbcinfo.so
+	/system/lib/libbinder.so
+	/system/lib/libc.so
+	/system/lib/libcamera_client.so
+	/system/lib/libcamera_metadata.so
+	/system/lib/libcommon_time_client.so
+	/system/lib/libconnectivitymanager.so
+	/system/lib/libcorkscrew.so
+	/system/lib/libcrypto.so
+	/system/lib/libcutils.so
+	/system/lib/libdrmframework.so
+	/system/lib/libdrmframework_jni.so
+	/system/lib/libdvm.so
+	/system/lib/libeffects.so
+	/system/lib/libexif.so
+	/system/lib/libexpat.so
+	/system/lib/libft2.so
+	/system/lib/libgabi++.so
+	/system/lib/libgccdemangle.so
+	/system/lib/libgsl.so
+	/system/lib/libgui.so
+	/system/lib/libhardware.so
+	/system/lib/libhardware_legacy.so
+	/system/lib/libharfbuzz_ng.so
+	/system/lib/libhwui.so
+	/system/lib/libicui18n.so
+	/system/lib/libicuuc.so
+	/system/lib/libinput.so
+	/system/lib/libjavacore.so
+	/system/lib/libjavacrypto.so
+	/system/lib/libjhead.so
+	/system/lib/libjhead_jni.so
+	/system/lib/libjnigraphics.so
+	/system/lib/libjpeg.so
+	/system/lib/liblog.so
+	/system/lib/libm.so
+	/system/lib/libmedia.so
+	/system/lib/libmedia_jni.so
+	/system/lib/libmemtrack.so
+	/system/lib/libmtp.so
+	/system/lib/libnativehelper.so
+	/system/lib/libnbaio.so
+	/system/lib/libnetutils.so
+	/system/lib/libpng.so
+	/system/lib/libpowermanager.so
+	/system/lib/librs_jni.so
+	/system/lib/libselinux.so
+	/system/lib/libskia.so
+	/system/lib/libsonivox.so
+	/system/lib/libspeexresampler.so
+	/system/lib/libsqlite.so
+	/system/lib/libssl.so
+	/system/lib/libstagefright.so
+	/system/lib/libstagefright_amrnb_common.so
+	/system/lib/libstagefright_avc_common.so
+	/system/lib/libstagefright_enc_common.so
+	/system/lib/libstagefright_foundation.so
+	/system/lib/libstagefright_omx.so
+	/system/lib/libstagefright_yuv.so
+	/system/lib/libstdc++.so
+	/system/lib/libstlport.so
+	/system/lib/libsync.so
+	/system/lib/libui.so
+	/system/lib/libusbhost.so
+	/system/lib/libutils.so
+	/system/lib/libvideoeditor_core.so
+	/system/lib/libvideoeditor_jni.so
+	/system/lib/libvideoeditor_osal.so
+	/system/lib/libvideoeditor_videofilters.so
+	/system/lib/libvideoeditorplayer.so
+	/system/lib/libvorbisidec.so
+	/system/lib/libwebviewchromium.so
+	/system/lib/libwebviewchromium_plat_support.so
+	/system/lib/libwpa_client.so
+	/system/lib/libz.so
+	/system/usr/icu/icudt51l.dat
+	/system/usr/share/zoneinfo/tzdata
